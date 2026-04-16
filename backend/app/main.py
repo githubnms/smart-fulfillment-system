@@ -1,22 +1,16 @@
 from fastapi import FastAPI
+from app.db.database import engine
 
-app = FastAPI(
-    title="Smart Fulfillment System",
-    description="""
-    A distributed system for order fulfillment and delivery optimization.
+app = FastAPI()
 
-    Features:
-    - Inventory Allocation Engine
-    - Delivery Optimization Engine
-    - Simulation of high-scale orders
-    - AWS-based deployment
-    """,
-    version="1.0.0"
-)
+@app.on_event("startup")
+def test_db_connection():
+    try:
+        with engine.connect() as connection:
+            print("Database connected successfully!")
+    except Exception as e:
+        print("Database connection failed:", e)
 
 @app.get("/")
 def read_root():
-    return {
-        "message": "Smart Fulfillment System API is running 🚀",
-        "status": "healthy"
-    }
+    return {"message": "API + DB Ready 🚀"}
