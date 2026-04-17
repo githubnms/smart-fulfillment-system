@@ -1,17 +1,27 @@
 from fastapi import FastAPI
 from app.db.database import engine, Base
 
-# Import all models
+# Import models
 from app.models import order_model, product_model, warehouse_model, inventory_model
 
-app = FastAPI()
+# Import routers
+from app.api import order_routes, inventory_routes, simulation_routes
+
+app = FastAPI(
+    title="Smart Fulfillment System",
+    version="1.0.0"
+)
 
 @app.on_event("startup")
 def startup():
-    print("Creating database tables...")
     Base.metadata.create_all(bind=engine)
-    print("Tables created successfully!")
+    print("Tables ready!")
+
+# Include routers
+app.include_router(order_routes.router)
+app.include_router(inventory_routes.router)
+app.include_router(simulation_routes.router)
 
 @app.get("/")
-def read_root():
-    return {"message": "System Ready"}
+def root():
+    return {"message": "API running "}
