@@ -1,0 +1,31 @@
+<!-- order.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Fulfillment - Create Order</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <div class="app-wrapper">
+    <header class="top-nav"><div class="nav-brand"><i class="fas fa-robot"></i><span>Smart<span class="accent-text">Fulfill</span></span></div><div class="nav-actions"><span class="badge">order portal</span><i class="fas fa-user-circle"></i></div></header>
+    <div class="main-layout">
+      <aside class="sidebar"><nav class="sidebar-nav"><a href="index.html" class="nav-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a><a href="order.html" class="nav-item active"><i class="fas fa-shopping-cart"></i><span>Orders</span></a><a href="inventory.html" class="nav-item"><i class="fas fa-boxes"></i><span>Inventory</span></a><a href="simulation.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Simulation</span></a><a href="logs.html" class="nav-item"><i class="fas fa-history"></i><span>Logs</span></a></nav><div class="sidebar-footer">Fulfillment Core</div></aside>
+      <main class="content-area">
+        <div class="glass-card-form">
+          <h2><i class="fas fa-pen-alt" style="color:#FF9900"></i> New Fulfillment Order</h2>
+          <form id="orderForm">
+            <div class="form-group"><label>Product ID *</label><input type="text" id="product_id" placeholder="e.g., PROD-X100" required></div>
+            <div class="form-group"><label>Quantity</label><input type="number" id="quantity" value="1" min="1" required></div>
+            <div class="form-group"><label>Priority</label><select id="priority"><option value="standard">Standard</option><option value="expedited">Expedited</option><option value="overnight">Overnight</option></select></div>
+            <button type="submit" class="btn-primary"><i class="fas fa-check-circle"></i> Process Order</button>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="js/main.js"></script>
+  <script src="js/order.js"></script>
+</body>
+</html>

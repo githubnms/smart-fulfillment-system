@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Smart Fulfillment System | Dashboard</title>
+  <!-- Google Fonts & Chart.js CDN -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- MAIN WRAPPER: SIDEBAR + RIGHT CONTENT -->
+  <div class="app-wrapper">
+    <!-- SIDEBAR (fixed) -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <span class="logo-icon">📦</span>
+        <span class="logo-text">SmartFulfill</span>
+      </div>
+      <nav class="sidebar-nav">
+        <ul>
+          <li data-nav="dashboard" class="nav-item active">
+            <span class="nav-icon">📊</span>
+            <span>Dashboard</span>
+          </li>
+          <li data-nav="orders" class="nav-item">
+            <span class="nav-icon">📋</span>
+            <span>Orders</span>
+          </li>
+          <li data-nav="inventory" class="nav-item">
+            <span class="nav-icon">🏷️</span>
+            <span>Inventory</span>
+          </li>
+          <li data-nav="simulation" class="nav-item">
+            <span class="nav-icon">⚙️</span>
+            <span>Simulation</span>
+          </li>
+          <li data-nav="logs" class="nav-item">
+            <span class="nav-icon">📜</span>
+            <span>Logs</span>
+          </li>
+        </ul>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="system-status">
+          <span class="status-dot"></span>
+          <span>System Online</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+      <!-- TOP NAVBAR -->
+      <header class="top-navbar">
+        <div class="navbar-left">
+          <div class="mobile-menu-trigger" id="mobileMenuToggle">☰</div>
+          <div class="page-title">Fulfillment Dashboard</div>
+        </div>
+        <div class="navbar-right">
+          <div class="status-badge">
+            <span class="status-indicator"></span>
+            <span>Operational</span>
+          </div>
+          <button class="icon-btn" aria-label="Notifications">🔔</button>
+          <div class="user-avatar">
+            <span>JD</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- DASHBOARD CONTENT (scrollable) -->
+      <div class="dashboard-container">
+        <!-- SECTION 1: STATS CARDS (4 cards) -->
+        <div class="stats-grid">
+          <div class="stat-card glass-card">
+            <div class="stat-title">Total Orders</div>
+            <div class="stat-number" id="totalOrdersValue" data-target="2847">0</div>
+            <div class="stat-trend">↑ +12.4%</div>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-title">Warehouses</div>
+            <div class="stat-number" id="warehousesValue" data-target="8">0</div>
+            <div class="stat-trend">Global network</div>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-title">Inventory Count</div>
+            <div class="stat-number" id="inventoryValue" data-target="12453">0</div>
+            <div class="stat-trend">units in stock</div>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-title">Avg Delivery Time</div>
+            <div class="stat-number" id="deliveryValue" data-target="2.4">0</div>
+            <div class="stat-trend">days ↓0.3</div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: QUICK ACTIONS (Grid) -->
+        <div class="quick-actions-grid">
+          <div class="action-card" data-action="create-order">
+            <div class="action-icon">➕</div>
+            <div class="action-label">Create Order</div>
+          </div>
+          <div class="action-card" data-action="inventory">
+            <div class="action-icon">📦</div>
+            <div class="action-label">Inventory</div>
+          </div>
+          <div class="action-card" data-action="simulation">
+            <div class="action-icon">⚡</div>
+            <div class="action-label">Simulation</div>
+          </div>
+          <div class="action-card" data-action="logs">
+            <div class="action-icon">📋</div>
+            <div class="action-label">Logs</div>
+          </div>
+        </div>
+
+        <!-- SECTION 3: CHARTS ROW (2 charts, max-height fixed) -->
+        <div class="charts-row">
+          <div class="chart-card glass-card">
+            <div class="chart-header">Orders Trend (Last 6 months)</div>
+            <div class="chart-wrapper">
+              <canvas id="ordersLineChart" width="400" height="200" style="max-height: 220px; width:100%"></canvas>
+            </div>
+          </div>
+          <div class="chart-card glass-card">
+            <div class="chart-header">Warehouse Distribution</div>
+            <div class="chart-wrapper">
+              <canvas id="warehouseBarChart" width="400" height="200" style="max-height: 220px; width:100%"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 4: LIVE ACTIVITY PANEL (scrollable, auto-update) -->
+        <div class="activity-panel glass-card">
+          <div class="activity-header">
+            <span>📡 Live Activity Feed</span>
+            <span class="live-badge">LIVE</span>
+          </div>
+          <div class="activity-scroll" id="activityLogList">
+            <!-- initial logs injected via JS -->
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
