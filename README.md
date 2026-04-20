@@ -26,23 +26,30 @@ The **Distributed Fulfillment Engine** is designed to replicate the core logic b
 
 # Completed Features
 
-✔️ Designed scalable RESTful APIs using FastAPI
-✔️ Implemented order processing endpoint (/process-order)
-✔️ Built inventory management system with database integration
-✔️ Developed core fulfillment logic for warehouse selection
-✔️ Created modular backend architecture for maintainability
-✔️ Implemented structured logging system
-✔️ Built Amazon-style dashboard UI (Frontend)
-✔️ Added real-time UI interactions and animations
+- ✔️ Designed scalable RESTful APIs using FastAPI
+- ✔️ Implemented order processing endpoint (/process-order)
+- ✔️ Built inventory management system with database integration
+- ✔️ Developed core fulfillment logic for warehouse selection
+- ✔️ Created modular backend architecture for maintainability
+- ✔️ Implemented structured logging system
+- ✔️ Built Amazon-style dashboard UI (Frontend)
+- ✔️ Added real-time UI interactions and animations
+
+## Screenshots
+<div align="center">
+  <img src="screenshot/Dashboard V1.png" width="400" alt="Dashboard v1">
+  <br>
+  <em> Dashboard v1 </em>
+</div>
 
 # Work In Progress
 
-🔄 Advanced delivery optimization algorithms (cost vs speed trade-off)
-🔄 Real-time analytics dashboard with charts
-🔄 Simulation engine for testing large-scale scenarios
-🔄 Multi-warehouse load balancing improvements
-🔄 Performance optimization for high-throughput requests
-🔄 Deployment (Docker + Cloud - AWS)
+- 🔄 Advanced delivery optimization algorithms (cost vs speed trade-off)
+- 🔄 Real-time analytics dashboard with charts
+- 🔄 Simulation engine for testing large-scale scenarios
+- 🔄 Multi-warehouse load balancing improvements
+- 🔄 Performance optimization for high-throughput requests
+- 🔄 Deployment (Docker + Cloud - AWS)
 
 # Key Highlights
 
