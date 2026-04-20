@@ -3,150 +3,540 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Smart Fulfillment System | Dashboard</title>
-  <!-- Google Fonts & Chart.js CDN -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <title>Smart Fulfillment · Dashboard</title>
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* Conveyor belt styles - boxes will be visible */
+    .conveyor-container {
+      position: relative;
+      width: 100%;
+      background: #0b1119;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 4px 20px rgba(0,0,0,0.3);
+    }
+    #conveyorCanvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #0f1722;
+    }
+    .boxes-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 20;
+    }
+    .conveyor-box {
+      position: absolute;
+      width: 62px;
+      height: 48px;
+      background: linear-gradient(145deg, #FF9900, #E68A00);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+      font-weight: bold;
+      will-change: left;
+      border: 1px solid rgba(255,200,100,0.8);
+      transition: transform 0.05s linear;
+      backdrop-filter: blur(1px);
+    }
+    .conveyor-box .box-emoji {
+      font-size: 24px;
+      filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+    }
+    .conveyor-box .box-label {
+      font-size: 7px;
+      background: rgba(0,0,0,0.8);
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-top: 4px;
+      color: #FFD699;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    /* Amazon style badge */
+    .amazon-badge {
+      background: linear-gradient(135deg, #FF9900, #FFB347);
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: bold;
+      color: #131921;
+    }
+  </style>
 </head>
 <body>
-
-  <!-- MAIN WRAPPER: SIDEBAR + RIGHT CONTENT -->
   <div class="app-wrapper">
-    <!-- SIDEBAR (fixed) -->
-    <aside class="sidebar">
-      <div class="sidebar-logo">
-        <span class="logo-icon">📦</span>
-        <span class="logo-text">SmartFulfill</span>
+    <!-- TOP NAVIGATION - Amazon style -->
+    <header class="top-nav">
+      <div class="nav-brand">
+        <i class="fas fa-robot"></i>
+        <span>Smart<span class="accent-text">Fulfill</span></span>
       </div>
-      <nav class="sidebar-nav">
-        <ul>
-          <li data-nav="dashboard" class="nav-item active">
-            <span class="nav-icon">📊</span>
+      <div class="nav-actions">
+        <span class="badge">⚡ operational</span>
+        <i class="fas fa-bell"></i>
+        <i class="fas fa-user-circle"></i>
+      </div>
+    </header>
+
+    <!-- MAIN LAYOUT -->
+    <div class="main-layout">
+      <!-- LEFT SIDEBAR -->
+      <aside class="sidebar">
+        <nav class="sidebar-nav">
+          <a href="index.html" class="nav-item active">
+            <i class="fas fa-tachometer-alt"></i>
             <span>Dashboard</span>
-          </li>
-          <li data-nav="orders" class="nav-item">
-            <span class="nav-icon">📋</span>
+          </a>
+          <a href="order.html" class="nav-item">
+            <i class="fas fa-shopping-cart"></i>
             <span>Orders</span>
-          </li>
-          <li data-nav="inventory" class="nav-item">
-            <span class="nav-icon">🏷️</span>
+          </a>
+          <a href="inventory.html" class="nav-item">
+            <i class="fas fa-boxes"></i>
             <span>Inventory</span>
-          </li>
-          <li data-nav="simulation" class="nav-item">
-            <span class="nav-icon">⚙️</span>
+          </a>
+          <a href="simulation.html" class="nav-item">
+            <i class="fas fa-chart-line"></i>
             <span>Simulation</span>
-          </li>
-          <li data-nav="logs" class="nav-item">
-            <span class="nav-icon">📜</span>
+          </a>
+          <a href="logs.html" class="nav-item">
+            <i class="fas fa-history"></i>
             <span>Logs</span>
-          </li>
-        </ul>
-      </nav>
-      <div class="sidebar-footer">
-        <div class="system-status">
-          <span class="status-dot"></span>
-          <span>System Online</span>
+          </a>
+        </nav>
+        <div class="sidebar-footer">
+          <i class="fas fa-microchip"></i> Fulfillment Engine
         </div>
-      </div>
-    </aside>
+      </aside>
 
-    <!-- MAIN CONTENT AREA -->
-    <main class="main-content">
-      <!-- TOP NAVBAR -->
-      <header class="top-navbar">
-        <div class="navbar-left">
-          <div class="mobile-menu-trigger" id="mobileMenuToggle">☰</div>
-          <div class="page-title">Fulfillment Dashboard</div>
-        </div>
-        <div class="navbar-right">
-          <div class="status-badge">
-            <span class="status-indicator"></span>
-            <span>Operational</span>
-          </div>
-          <button class="icon-btn" aria-label="Notifications">🔔</button>
-          <div class="user-avatar">
-            <span>JD</span>
-          </div>
-        </div>
-      </header>
-
-      <!-- DASHBOARD CONTENT (scrollable) -->
-      <div class="dashboard-container">
-        <!-- SECTION 1: STATS CARDS (4 cards) -->
-        <div class="stats-grid">
-          <div class="stat-card glass-card">
-            <div class="stat-title">Total Orders</div>
-            <div class="stat-number" id="totalOrdersValue" data-target="2847">0</div>
-            <div class="stat-trend">↑ +12.4%</div>
-          </div>
-          <div class="stat-card glass-card">
-            <div class="stat-title">Warehouses</div>
-            <div class="stat-number" id="warehousesValue" data-target="8">0</div>
-            <div class="stat-trend">Global network</div>
-          </div>
-          <div class="stat-card glass-card">
-            <div class="stat-title">Inventory Count</div>
-            <div class="stat-number" id="inventoryValue" data-target="12453">0</div>
-            <div class="stat-trend">units in stock</div>
-          </div>
-          <div class="stat-card glass-card">
-            <div class="stat-title">Avg Delivery Time</div>
-            <div class="stat-number" id="deliveryValue" data-target="2.4">0</div>
-            <div class="stat-trend">days ↓0.3</div>
-          </div>
-        </div>
-
-        <!-- SECTION 2: QUICK ACTIONS (Grid) -->
-        <div class="quick-actions-grid">
-          <div class="action-card" data-action="create-order">
-            <div class="action-icon">➕</div>
-            <div class="action-label">Create Order</div>
-          </div>
-          <div class="action-card" data-action="inventory">
-            <div class="action-icon">📦</div>
-            <div class="action-label">Inventory</div>
-          </div>
-          <div class="action-card" data-action="simulation">
-            <div class="action-icon">⚡</div>
-            <div class="action-label">Simulation</div>
-          </div>
-          <div class="action-card" data-action="logs">
-            <div class="action-icon">📋</div>
-            <div class="action-label">Logs</div>
-          </div>
-        </div>
-
-        <!-- SECTION 3: CHARTS ROW (2 charts, max-height fixed) -->
-        <div class="charts-row">
-          <div class="chart-card glass-card">
-            <div class="chart-header">Orders Trend (Last 6 months)</div>
-            <div class="chart-wrapper">
-              <canvas id="ordersLineChart" width="400" height="200" style="max-height: 220px; width:100%"></canvas>
+      <!-- MAIN CONTENT -->
+      <main class="content-area">
+        <div class="dashboard-container">
+          <!-- Stat Cards -->
+          <div class="stats-grid">
+            <div class="stat-card glow-card">
+              <div class="stat-icon"><i class="fas fa-truck"></i></div>
+              <div class="stat-details">
+                <h3>Total Orders</h3>
+                <div class="stat-value" id="statOrders">2,847</div>
+                <span class="stat-trend"><i class="fas fa-arrow-up"></i> +12.3%</span>
+              </div>
+            </div>
+            <div class="stat-card glow-card">
+              <div class="stat-icon"><i class="fas fa-warehouse"></i></div>
+              <div class="stat-details">
+                <h3>Active Warehouses</h3>
+                <div class="stat-value">4</div>
+                <span class="stat-trend">global footprint</span>
+              </div>
+            </div>
+            <div class="stat-card glow-card">
+              <div class="stat-icon"><i class="fas fa-cubes"></i></div>
+              <div class="stat-details">
+                <h3>SKU Count</h3>
+                <div class="stat-value" id="statInventory">1,203</div>
+                <span class="stat-trend"><i class="fas fa-database"></i> in stock</span>
+              </div>
+            </div>
+            <div class="stat-card glow-card">
+              <div class="stat-icon"><i class="fas fa-clock"></i></div>
+              <div class="stat-details">
+                <h3>Avg Delivery</h3>
+                <div class="stat-value">2.4<span class="small-unit">d</span></div>
+                <span class="stat-trend">prime ready</span>
+              </div>
             </div>
           </div>
-          <div class="chart-card glass-card">
-            <div class="chart-header">Warehouse Distribution</div>
-            <div class="chart-wrapper">
-              <canvas id="warehouseBarChart" width="400" height="200" style="max-height: 220px; width:100%"></canvas>
+
+          <!-- Scrolling Banner - Right to Left (Amazon style) -->
+          <div class="promo-scroll-container">
+            <div class="promo-scroll">
+              <span class="scroll-item">✨ Fastest fulfillment network ✨</span>
+              <span class="scroll-item">⚡ Same-day dispatch available ⚡</span>
+              <span class="scroll-item">🚚 Free express shipping on bulk 🚚</span>
+              <span class="scroll-item">🏆 Trusted by 10k+ sellers 🏆</span>
+              <span class="scroll-item">📦 Real-time inventory sync 📦</span>
+              <span class="scroll-item">✨ Amazon Prime Ready ✨</span>
+              <span class="scroll-item">⚡ 24/7 Fulfillment ⚡</span>
+              <span class="scroll-item">🚚 Global Shipping Network 🚚</span>
+              <span class="scroll-item">🏆 Trusted by 10k+ sellers 🏆</span>
+              <span class="scroll-item">📦 Real-time inventory sync 📦</span>
+            </div>
+          </div>
+
+          <!-- Action Cards -->
+          <div class="action-section">
+            <h2 class="section-title"><i class="fas fa-bolt"></i> Quick Actions</h2>
+            <div class="action-cards">
+              <div class="action-card" onclick="window.location.href='order.html'">
+                <div class="action-icon"><i class="fas fa-plus-circle"></i></div>
+                <h4>Create Order</h4>
+                <p>Process new fulfillment request</p>
+                <span class="link-arrow">→</span>
+              </div>
+              <div class="action-card" onclick="window.location.href='inventory.html'">
+                <div class="action-icon"><i class="fas fa-chart-simple"></i></div>
+                <h4>Inventory Insights</h4>
+                <p>View stock levels & analytics</p>
+                <span class="link-arrow">→</span>
+              </div>
+              <div class="action-card" onclick="window.location.href='simulation.html'">
+                <div class="action-icon"><i class="fas fa-microchip"></i></div>
+                <h4>Run Simulation</h4>
+                <p>Forecast fulfillment capacity</p>
+                <span class="link-arrow">→</span>
+              </div>
+              <div class="action-card" onclick="window.location.href='logs.html'">
+                <div class="action-icon"><i class="fas fa-scroll"></i></div>
+                <h4>System Logs</h4>
+                <p>Monitor event stream</p>
+                <span class="link-arrow">→</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ========== CONVEYOR BELT WITH AMAZON-STYLE MOVING BOXES ========== -->
+          <div class="conveyor-section">
+            <div class="section-header">
+              <h2 class="section-title"><i class="fas fa-cogs"></i> Live Fulfillment Line</h2>
+              <span class="badge-live"><i class="fas fa-circle"></i> ACTIVE</span>
+            </div>
+            <div class="conveyor-container" id="conveyorContainer">
+              <canvas id="conveyorCanvas" width="1000" height="160"></canvas>
+              <div id="boxesContainer" class="boxes-overlay"></div>
+            </div>
+            <div class="conveyor-stats">
+              <div class="stat-chip"><i class="fas fa-box"></i> Items/min: <span id="itemRate">18</span></div>
+              <div class="stat-chip"><i class="fas fa-check-circle"></i> Throughput: 99.2%</div>
+              <div class="stat-chip"><i class="fas fa-robot"></i> Sorted: 1,847</div>
+              <div class="stat-chip"><i class="fab fa-amazon"></i> Prime Ready</div>
+            </div>
+          </div>
+
+          <!-- Recent Activity Panel -->
+          <div class="recent-panel">
+            <div class="panel-header">
+              <h3><i class="fas fa-chart-line"></i> Real-time throughput</h3>
+              <span class="badge-light">last 24h</span>
+            </div>
+            <div class="metrics-row">
+              <div class="metric-badge">📦 342 orders fulfilled</div>
+              <div class="metric-badge">🚚 avg 1.8h dispatch</div>
+              <div class="metric-badge">⚙️ simulation ready</div>
+              <div class="metric-badge"><i class="fab fa-amazon"></i> Premium Network</div>
             </div>
           </div>
         </div>
-
-        <!-- SECTION 4: LIVE ACTIVITY PANEL (scrollable, auto-update) -->
-        <div class="activity-panel glass-card">
-          <div class="activity-header">
-            <span>📡 Live Activity Feed</span>
-            <span class="live-badge">LIVE</span>
-          </div>
-          <div class="activity-scroll" id="activityLogList">
-            <!-- initial logs injected via JS -->
-          </div>
-        </div>
-      </div>
-    </main>
+      </main>
+    </div>
   </div>
 
   <script src="js/main.js"></script>
+  <script>
+    // Stats animations
+    async function fetchInventoryStats() {
+      try {
+        const res = await fetch('http://127.0.0.1:8000/inventory');
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.length) {
+            document.getElementById('statInventory').innerText = data.length;
+          }
+        }
+      } catch(e) { console.log("inventory fetch optional"); }
+    }
+    fetchInventoryStats();
+
+    function animateValue(element, start, end, duration) {
+      let startTimestamp = null;
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        element.innerText = Math.floor(progress * (end - start) + start);
+        if (progress < 1) window.requestAnimationFrame(step);
+      };
+      window.requestAnimationFrame(step);
+    }
+    const ordersSpan = document.getElementById('statOrders');
+    if (ordersSpan) animateValue(ordersSpan, 2100, 2847, 800);
+
+    // ========== CONVEYOR BELT WITH MOVING AMAZON-STYLE BOXES ==========
+    (function initConveyor() {
+      const canvas = document.getElementById('conveyorCanvas');
+      const ctx = canvas.getContext('2d');
+      const boxesContainer = document.getElementById('boxesContainer');
+      
+      let textureOffset = 0;
+      let activeBoxes = [];
+      let animationId = null;
+      let boxAnimationId = null;
+      
+      const BOX_WIDTH = 62;
+      const BOX_HEIGHT = 48;
+      const BOX_SPEED = 0.95; // Smooth, realistic speed
+      const SPAWN_INTERVAL = 2100; // milliseconds
+      
+      // Amazon-style box designs
+      const boxDesigns = [
+        { emoji: "📦", label: "PRIME" },
+        { emoji: "🚚", label: "FAST" },
+        { emoji: "⚡", label: "SAME DAY" },
+        { emoji: "📦", label: "FULFILL" },
+        { emoji: "🏷️", label: "SMART" },
+        { emoji: "📦", label: "EXPRESS" },
+        { emoji: "✨", label: "PREMIUM" }
+      ];
+      
+      function resizeCanvas() {
+        const container = canvas.parentElement;
+        const width = Math.min(container.clientWidth - 4, 1200);
+        canvas.width = width;
+        canvas.height = 160;
+        drawBelt();
+        updateBeltPosition();
+        repositionAllBoxes();
+      }
+      
+      function getBeltRect() {
+        const canvasRect = canvas.getBoundingClientRect();
+        const containerRect = canvas.parentElement.getBoundingClientRect();
+        if (!canvasRect.width) return null;
+        return {
+          startX: canvasRect.left + 12,
+          endX: canvasRect.right - 38,
+          beltTopY: canvasRect.top + canvas.height - 48 + 5,
+          containerLeft: containerRect.left,
+          containerTop: containerRect.top,
+          canvasHeight: canvas.height
+        };
+      }
+      
+      function drawBelt() {
+        if (!ctx) return;
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        
+        // Background gradient
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, '#1a2635');
+        grad.addColorStop(1, '#0f1722');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+        
+        const beltY = h - 48;
+        const beltHeight = 34;
+        
+        // Belt shadow
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = 'rgba(0,0,0,0.6)';
+        ctx.fillStyle = '#1a2a38';
+        ctx.fillRect(0, beltY + 2, w, beltHeight);
+        ctx.shadowBlur = 0;
+        
+        // Belt surface
+        const beltGrad = ctx.createLinearGradient(0, beltY, 0, beltY + beltHeight);
+        beltGrad.addColorStop(0, '#3e5062');
+        beltGrad.addColorStop(1, '#2a3a48');
+        ctx.fillStyle = beltGrad;
+        ctx.fillRect(0, beltY, w, beltHeight);
+        
+        // Moving texture (conveyor pattern)
+        for (let i = 0; i < w + 80; i += 36) {
+          const x = (i + textureOffset) % (w + 80) - 40;
+          if (x > 0 && x < w) {
+            ctx.beginPath();
+            ctx.strokeStyle = '#FFB347';
+            ctx.lineWidth = 2.2;
+            ctx.moveTo(x, beltY + 7);
+            ctx.lineTo(x + 16, beltY + beltHeight - 9);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.strokeStyle = '#FF9900';
+            ctx.moveTo(x + 18, beltY + 9);
+            ctx.lineTo(x + 34, beltY + beltHeight - 7);
+            ctx.stroke();
+          }
+        }
+        
+        // Belt edges
+        ctx.strokeStyle = '#FFB347';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(3, beltY, w - 6, beltHeight);
+        
+        // Rollers
+        for (let r = 20; r < w; r += 65) {
+          ctx.fillStyle = '#5a6e80';
+          ctx.beginPath();
+          ctx.arc(r, beltY + beltHeight/2, 7, 0, Math.PI*2);
+          ctx.fill();
+          ctx.fillStyle = '#8aa0b0';
+          ctx.beginPath();
+          ctx.arc(r, beltY + beltHeight/2, 3.5, 0, Math.PI*2);
+          ctx.fill();
+        }
+        
+        // Side rails
+        ctx.fillStyle = '#2c4050';
+        ctx.fillRect(0, beltY - 6, w, 6);
+        ctx.fillStyle = '#1e2e3c';
+        ctx.fillRect(0, beltY + beltHeight, w, 8);
+        
+        // Amazon-style accent line
+        ctx.strokeStyle = '#FF9900';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, beltY - 2);
+        ctx.lineTo(w, beltY - 2);
+        ctx.stroke();
+      }
+      
+      function animateTexture() {
+        textureOffset = (textureOffset + 1.0) % 70;
+        drawBelt();
+        animationId = requestAnimationFrame(animateTexture);
+      }
+      
+      function updateBeltPosition() {
+        // Just updates reference - called on resize/scroll
+      }
+      
+      function createBoxElement() {
+        const boxDiv = document.createElement('div');
+        boxDiv.className = 'conveyor-box';
+        const design = boxDesigns[Math.floor(Math.random() * boxDesigns.length)];
+        boxDiv.innerHTML = `
+          <span class="box-emoji">${design.emoji}</span>
+          <span class="box-label">${design.label}</span>
+        `;
+        return boxDiv;
+      }
+      
+      function spawnBox() {
+        const belt = getBeltRect();
+        if (!belt) return;
+        
+        const boxElement = createBoxElement();
+        boxElement.style.position = 'absolute';
+        boxElement.style.left = '-70px';
+        boxElement.style.top = (belt.canvasHeight - 48 + 4) + 'px';
+        boxesContainer.appendChild(boxElement);
+        
+        activeBoxes.push({
+          element: boxElement,
+          x: -BOX_WIDTH,
+          speed: BOX_SPEED,
+          width: BOX_WIDTH
+        });
+        
+        // Update items per minute counter
+        const rateSpan = document.getElementById('itemRate');
+        if (rateSpan) {
+          let current = parseInt(rateSpan.innerText) || 18;
+          let newRate = Math.min(42, current + (Math.random() > 0.7 ? 1 : -0.5));
+          if (newRate < 12) newRate = 14;
+          rateSpan.innerText = Math.floor(newRate);
+        }
+      }
+      
+      function moveBoxes() {
+        const belt = getBeltRect();
+        
+        for (let i = 0; i < activeBoxes.length; i++) {
+          const box = activeBoxes[i];
+          box.x += box.speed;
+          
+          // Remove if past the end
+          const maxX = (belt ? belt.endX - belt.startX : 800);
+          if (box.x > maxX + 100) {
+            if (box.element && box.element.remove) {
+              box.element.remove();
+            }
+            activeBoxes.splice(i, 1);
+            i--;
+            continue;
+          }
+          
+          // Update position
+          if (box.element) {
+            box.element.style.left = box.x + 'px';
+            // Subtle wobble effect
+            const wobble = Math.sin(Date.now() * 0.006 + i) * 1.2;
+            box.element.style.transform = `rotate(${wobble}deg)`;
+          }
+        }
+        
+        boxAnimationId = requestAnimationFrame(moveBoxes);
+      }
+      
+      function repositionAllBoxes() {
+        // Keep boxes in correct relative position on resize
+        for (let i = 0; i < activeBoxes.length; i++) {
+          const box = activeBoxes[i];
+          if (box.element) {
+            box.element.style.left = box.x + 'px';
+          }
+        }
+      }
+      
+      // Spawn timer
+      let spawnTimer = setInterval(() => {
+        if (document.hasFocus() && document.getElementById('conveyorCanvas')) {
+          spawnBox();
+        }
+      }, SPAWN_INTERVAL);
+      
+      // Handle window resize
+      let resizeTimeout;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          resizeCanvas();
+          repositionAllBoxes();
+        }, 100);
+      });
+      
+      window.addEventListener('scroll', () => {
+        repositionAllBoxes();
+      });
+      
+      // Initialize
+      resizeCanvas();
+      animateTexture();
+      moveBoxes();
+      
+      // Spawn initial boxes
+      setTimeout(() => {
+        spawnBox();
+        setTimeout(() => spawnBox(), 600);
+        setTimeout(() => spawnBox(), 1300);
+        setTimeout(() => spawnBox(), 1900);
+        setTimeout(() => spawnBox(), 2600);
+        setTimeout(() => spawnBox(), 3300);
+      }, 400);
+      
+      // Cleanup on page unload
+      window.addEventListener('beforeunload', () => {
+        if (spawnTimer) clearInterval(spawnTimer);
+        if (animationId) cancelAnimationFrame(animationId);
+        if (boxAnimationId) cancelAnimationFrame(boxAnimationId);
+        for (const box of activeBoxes) {
+          if (box.element && box.element.remove) box.element.remove();
+        }
+        activeBoxes = [];
+      });
+      
+    })();
+  </script>
 </body>
 </html>
