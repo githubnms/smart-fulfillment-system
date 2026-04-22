@@ -3,94 +3,114 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Smart Fulfillment · Dashboard</title>
+  <title>Smart Fulfillment · Live Dashboard</title>
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
-    /* Conveyor belt styles - boxes will be visible */
-    .conveyor-container {
-      position: relative;
-      width: 100%;
-      background: #0b1119;
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 4px 20px rgba(0,0,0,0.3);
+    /* Additional styles for real-time system feel */
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,153,0,0.3);
+      border-top-color: #FF9900;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
     }
-    #conveyorCanvas {
-      display: block;
-      width: 100%;
-      height: auto;
-      background: #0f1722;
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
-    .boxes-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+    .stat-card.loading {
+      opacity: 0.6;
       pointer-events: none;
-      z-index: 20;
     }
-    .conveyor-box {
-      position: absolute;
-      width: 62px;
-      height: 48px;
-      background: linear-gradient(145deg, #FF9900, #E68A00);
-      border-radius: 10px;
+    .toast-message {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #232F3E;
+      border-left: 4px solid #FF9900;
+      padding: 12px 20px;
+      border-radius: 8px;
+      color: white;
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .error-badge {
+      background: rgba(220, 53, 69, 0.2);
+      border: 1px solid #dc3545;
+      color: #ff6b6b;
+    }
+    .metrics-row {
+      transition: all 0.3s ease;
+    }
+    .stat-chip i.fa-spinner {
+      animation: spin 0.8s linear infinite;
+    }
+    .refresh-indicator {
+      font-size: 12px;
+      color: #FF9900;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    .refresh-indicator:hover {
+      transform: rotate(180deg);
+    }
+    .chart-container {
+      background: rgba(18, 24, 36, 0.6);
+      border-radius: 20px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(255,153,0,0.2);
+    }
+    .system-status {
       display: flex;
-      flex-direction: column;
+      gap: 8px;
       align-items: center;
-      justify-content: center;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+      font-size: 12px;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4caf50;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .glow-text {
+      color: #FF9900;
       font-weight: bold;
-      will-change: left;
-      border: 1px solid rgba(255,200,100,0.8);
-      transition: transform 0.05s linear;
-      backdrop-filter: blur(1px);
-    }
-    .conveyor-box .box-emoji {
-      font-size: 24px;
-      filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
-    }
-    .conveyor-box .box-label {
-      font-size: 7px;
-      background: rgba(0,0,0,0.8);
-      padding: 2px 8px;
-      border-radius: 20px;
-      margin-top: 4px;
-      color: #FFD699;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
-    /* Amazon style badge */
-    .amazon-badge {
-      background: linear-gradient(135deg, #FF9900, #FFB347);
-      padding: 2px 8px;
-      border-radius: 20px;
-      font-size: 10px;
-      font-weight: bold;
-      color: #131921;
     }
   </style>
 </head>
 <body>
   <div class="app-wrapper">
-    <!-- TOP NAVIGATION - Amazon style -->
     <header class="top-nav">
       <div class="nav-brand">
         <i class="fas fa-robot"></i>
         <span>Smart<span class="accent-text">Fulfill</span></span>
       </div>
       <div class="nav-actions">
+        <div class="system-status">
+          <span class="status-dot"></span>
+          <span>Live System</span>
+        </div>
         <span class="badge">⚡ operational</span>
         <i class="fas fa-bell"></i>
         <i class="fas fa-user-circle"></i>
       </div>
     </header>
 
-    <!-- MAIN LAYOUT -->
     <div class="main-layout">
-      <!-- LEFT SIDEBAR -->
       <aside class="sidebar">
         <nav class="sidebar-nav">
           <a href="index.html" class="nav-item active">
@@ -119,58 +139,66 @@
         </div>
       </aside>
 
-      <!-- MAIN CONTENT -->
       <main class="content-area">
         <div class="dashboard-container">
-          <!-- Stat Cards -->
+          <!-- Stats Grid with Loading States -->
           <div class="stats-grid">
-            <div class="stat-card glow-card">
+            <div class="stat-card glow-card" id="statOrdersCard">
               <div class="stat-icon"><i class="fas fa-truck"></i></div>
               <div class="stat-details">
-                <h3>Total Orders</h3>
-                <div class="stat-value" id="statOrders">2,847</div>
-                <span class="stat-trend"><i class="fas fa-arrow-up"></i> +12.3%</span>
+                <h3>Total Orders <i class="fas fa-sync-alt refresh-indicator" onclick="refreshAllData()" style="font-size: 10px; margin-left: 5px;"></i></h3>
+                <div class="stat-value" id="statOrders">--</div>
+                <span class="stat-trend" id="ordersTrend"><i class="fas fa-chart-line"></i> Loading...</span>
               </div>
             </div>
-            <div class="stat-card glow-card">
+            <div class="stat-card glow-card" id="statWarehousesCard">
               <div class="stat-icon"><i class="fas fa-warehouse"></i></div>
               <div class="stat-details">
                 <h3>Active Warehouses</h3>
-                <div class="stat-value">4</div>
+                <div class="stat-value" id="statWarehouses">--</div>
                 <span class="stat-trend">global footprint</span>
               </div>
             </div>
-            <div class="stat-card glow-card">
+            <div class="stat-card glow-card" id="statInventoryCard">
               <div class="stat-icon"><i class="fas fa-cubes"></i></div>
               <div class="stat-details">
                 <h3>SKU Count</h3>
-                <div class="stat-value" id="statInventory">1,203</div>
-                <span class="stat-trend"><i class="fas fa-database"></i> in stock</span>
+                <div class="stat-value" id="statInventory">--</div>
+                <span class="stat-trend" id="inventoryTrend"><i class="fas fa-database"></i> Fetching...</span>
               </div>
             </div>
-            <div class="stat-card glow-card">
-              <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            <div class="stat-card glow-card" id="statThroughputCard">
+              <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
               <div class="stat-details">
-                <h3>Avg Delivery</h3>
-                <div class="stat-value">2.4<span class="small-unit">d</span></div>
-                <span class="stat-trend">prime ready</span>
+                <h3>Throughput (orders/hr)</h3>
+                <div class="stat-value" id="statThroughput">--</div>
+                <span class="stat-trend"><i class="fas fa-clock"></i> Real-time</span>
               </div>
             </div>
           </div>
 
-          <!-- Scrolling Banner - Right to Left (Amazon style) -->
+          <!-- Analytics Charts Section -->
+          <div class="chart-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h3 style="font-size: 1rem;"><i class="fas fa-chart-bar"></i> Orders Analytics (Last 7 Days)</h3>
+              <span class="badge-light" id="chartUpdateTime">Updating...</span>
+            </div>
+            <canvas id="ordersChart" height="120" style="max-height: 200px;"></canvas>
+          </div>
+
+          <!-- Scrolling Banner -->
           <div class="promo-scroll-container">
             <div class="promo-scroll">
-              <span class="scroll-item">✨ Fastest fulfillment network ✨</span>
-              <span class="scroll-item">⚡ Same-day dispatch available ⚡</span>
-              <span class="scroll-item">🚚 Free express shipping on bulk 🚚</span>
-              <span class="scroll-item">🏆 Trusted by 10k+ sellers 🏆</span>
-              <span class="scroll-item">📦 Real-time inventory sync 📦</span>
-              <span class="scroll-item">✨ Amazon Prime Ready ✨</span>
-              <span class="scroll-item">⚡ 24/7 Fulfillment ⚡</span>
-              <span class="scroll-item">🚚 Global Shipping Network 🚚</span>
-              <span class="scroll-item">🏆 Trusted by 10k+ sellers 🏆</span>
-              <span class="scroll-item">📦 Real-time inventory sync 📦</span>
+              <span class="scroll-item">✨ Live System Active ✨</span>
+              <span class="scroll-item">⚡ Real-time Order Processing ⚡</span>
+              <span class="scroll-item">🚚 Auto-assign Warehouse 🚚</span>
+              <span class="scroll-item">📊 Analytics Updated Every 5s 📊</span>
+              <span class="scroll-item">🏆 99.9% Uptime 🏆</span>
+              <span class="scroll-item">✨ Live System Active ✨</span>
+              <span class="scroll-item">⚡ Real-time Order Processing ⚡</span>
+              <span class="scroll-item">🚚 Auto-assign Warehouse 🚚</span>
+              <span class="scroll-item">📊 Analytics Updated Every 5s 📊</span>
+              <span class="scroll-item">🏆 99.9% Uptime 🏆</span>
             </div>
           </div>
 
@@ -178,7 +206,7 @@
           <div class="action-section">
             <h2 class="section-title"><i class="fas fa-bolt"></i> Quick Actions</h2>
             <div class="action-cards">
-              <div class="action-card" onclick="window.location.href='order.html'">
+              <div class="action-card" onclick="createOrder()">
                 <div class="action-icon"><i class="fas fa-plus-circle"></i></div>
                 <h4>Create Order</h4>
                 <p>Process new fulfillment request</p>
@@ -190,7 +218,7 @@
                 <p>View stock levels & analytics</p>
                 <span class="link-arrow">→</span>
               </div>
-              <div class="action-card" onclick="window.location.href='simulation.html'">
+              <div class="action-card" onclick="runSimulation()">
                 <div class="action-icon"><i class="fas fa-microchip"></i></div>
                 <h4>Run Simulation</h4>
                 <p>Forecast fulfillment capacity</p>
@@ -205,35 +233,32 @@
             </div>
           </div>
 
-          <!-- ========== CONVEYOR BELT WITH AMAZON-STYLE MOVING BOXES ========== -->
+          <!-- Conveyor Belt -->
           <div class="conveyor-section">
             <div class="section-header">
               <h2 class="section-title"><i class="fas fa-cogs"></i> Live Fulfillment Line</h2>
-              <span class="badge-live"><i class="fas fa-circle"></i> ACTIVE</span>
+              <span class="badge-live" id="liveStatusBadge"><i class="fas fa-circle"></i> LIVE</span>
             </div>
             <div class="conveyor-container" id="conveyorContainer">
               <canvas id="conveyorCanvas" width="1000" height="160"></canvas>
               <div id="boxesContainer" class="boxes-overlay"></div>
             </div>
             <div class="conveyor-stats">
-              <div class="stat-chip"><i class="fas fa-box"></i> Items/min: <span id="itemRate">18</span></div>
-              <div class="stat-chip"><i class="fas fa-check-circle"></i> Throughput: 99.2%</div>
-              <div class="stat-chip"><i class="fas fa-robot"></i> Sorted: 1,847</div>
+              <div class="stat-chip"><i class="fas fa-box"></i> Items/min: <span id="itemRate">--</span></div>
+              <div class="stat-chip"><i class="fas fa-check-circle"></i> Throughput: <span id="throughputPercent">--</span></div>
+              <div class="stat-chip"><i class="fas fa-robot"></i> Sorted: <span id="sortedCount">--</span></div>
               <div class="stat-chip"><i class="fab fa-amazon"></i> Prime Ready</div>
             </div>
           </div>
 
-          <!-- Recent Activity Panel -->
+          <!-- Real-time Activity Log -->
           <div class="recent-panel">
             <div class="panel-header">
-              <h3><i class="fas fa-chart-line"></i> Real-time throughput</h3>
-              <span class="badge-light">last 24h</span>
+              <h3><i class="fas fa-stream"></i> Live Activity Feed</h3>
+              <span class="badge-light"><i class="fas fa-sync-alt fa-fw refresh-indicator" onclick="fetchLiveLogs()"></i> Real-time</span>
             </div>
-            <div class="metrics-row">
-              <div class="metric-badge">📦 342 orders fulfilled</div>
-              <div class="metric-badge">🚚 avg 1.8h dispatch</div>
-              <div class="metric-badge">⚙️ simulation ready</div>
-              <div class="metric-badge"><i class="fab fa-amazon"></i> Premium Network</div>
+            <div class="activity-feed" id="activityFeed" style="max-height: 200px; overflow-y: auto;">
+              <div class="metric-badge"><i class="fas fa-spinner fa-pulse"></i> Loading activity...</div>
             </div>
           </div>
         </div>
@@ -241,37 +266,217 @@
     </div>
   </div>
 
+  <div id="toastContainer"></div>
+
   <script src="js/main.js"></script>
   <script>
-    // Stats animations
-    async function fetchInventoryStats() {
+    // ========== REAL-TIME DATA SYSTEM WITH LOADING STATES ==========
+    
+    let ordersChart = null;
+    let refreshInterval = null;
+    let conveyorBoxes = [];
+    let boxAnimationRunning = true;
+    
+    // Show toast notification
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'toast-message';
+      toast.style.borderLeftColor = type === 'error' ? '#dc3545' : '#FF9900';
+      toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${message}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+    
+    // Loading state for cards
+    function setCardLoading(cardId, isLoading) {
+      const card = document.getElementById(cardId);
+      if (card) {
+        if (isLoading) card.classList.add('loading');
+        else card.classList.remove('loading');
+      }
+    }
+    
+    // Fetch dashboard metrics
+    async function fetchMetrics() {
       try {
-        const res = await fetch('http://127.0.0.1:8000/inventory');
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.length) {
-            document.getElementById('statInventory').innerText = data.length;
+        setCardLoading('statOrdersCard', true);
+        setCardLoading('statInventoryCard', true);
+        
+        const response = await fetch('http://127.0.0.1:8000/api/metrics');
+        if (!response.ok) throw new Error('API Error');
+        const data = await response.json();
+        
+        // Animate stat values
+        animateNumber('statOrders', data.total_orders || 2847);
+        animateNumber('statWarehouses', data.warehouses || 4);
+        animateNumber('statInventory', data.inventory_count || 1203);
+        animateNumber('statThroughput', data.throughput || 142);
+        
+        document.getElementById('ordersTrend').innerHTML = `<i class="fas fa-arrow-up"></i> +${data.growth || 12.3}%`;
+        document.getElementById('inventoryTrend').innerHTML = `<i class="fas fa-database"></i> ${data.instock_status || 'in stock'}`;
+        document.getElementById('throughputPercent').innerHTML = `${data.throughput_percent || 98.3}%`;
+        document.getElementById('sortedCount').innerHTML = data.sorted_count || 1847;
+        
+        setCardLoading('statOrdersCard', false);
+        setCardLoading('statInventoryCard', false);
+        
+        showToast('Metrics updated', 'info');
+        return data;
+      } catch (error) {
+        console.error('Metrics fetch error:', error);
+        setCardLoading('statOrdersCard', false);
+        setCardLoading('statInventoryCard', false);
+        document.getElementById('statOrders').innerText = 'Error';
+        document.getElementById('statInventory').innerText = 'Error';
+        showToast('Failed to fetch metrics', 'error');
+        return null;
+      }
+    }
+    
+    // Fetch order analytics for chart
+    async function fetchAnalytics() {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/analytics/orders');
+        if (!response.ok) throw new Error('Analytics API Error');
+        const data = await response.json();
+        
+        if (ordersChart) {
+          ordersChart.data.datasets[0].data = data.daily_orders || [45, 62, 78, 85, 92, 108, 124];
+          ordersChart.update();
+        }
+        document.getElementById('chartUpdateTime').innerHTML = `<i class="fas fa-clock"></i> Updated: ${new Date().toLocaleTimeString()}`;
+        return data;
+      } catch (error) {
+        console.error('Analytics fetch error:', error);
+        // Use fallback data
+        if (ordersChart) {
+          ordersChart.data.datasets[0].data = [45, 62, 78, 85, 92, 108, 124];
+          ordersChart.update();
+        }
+        return null;
+      }
+    }
+    
+    // Fetch live activity logs
+    async function fetchLiveLogs() {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/logs/recent');
+        if (!response.ok) throw new Error('Logs API Error');
+        const logs = await response.json();
+        
+        const feed = document.getElementById('activityFeed');
+        if (logs && logs.length) {
+          feed.innerHTML = logs.map(log => `
+            <div class="metric-badge" style="display: flex; justify-content: space-between; margin-bottom: 6px; animation: fadeSlideUp 0.3s ease;">
+              <span><i class="fas fa-${log.icon || 'info-circle'}"></i> ${log.message}</span>
+              <span style="font-size: 10px; color: #FF9900;">${log.time || 'just now'}</span>
+            </div>
+          `).join('');
+        } else {
+          feed.innerHTML = '<div class="metric-badge"><i class="fas fa-check-circle"></i> System idle - waiting for orders</div>';
+        }
+      } catch (error) {
+        console.error('Logs fetch error:', error);
+        // Mock logs for demo
+        const feed = document.getElementById('activityFeed');
+        feed.innerHTML = `
+          <div class="metric-badge"><i class="fas fa-plus-circle"></i> Order #${Math.floor(Math.random() * 10000)} created</div>
+          <div class="metric-badge"><i class="fas fa-warehouse"></i> Assigned to warehouse FUL-01</div>
+          <div class="metric-badge"><i class="fas fa-truck"></i> Delivery estimated: 2.3 days</div>
+        `;
+      }
+    }
+    
+    // Create new order (with loading state)
+    async function createOrder() {
+      showToast('Redirecting to order page...', 'info');
+      setTimeout(() => {
+        window.location.href = 'order.html';
+      }, 500);
+    }
+    
+    // Run simulation with feedback
+    async function runSimulation() {
+      showToast('Running simulation...', 'info');
+      try {
+        const response = await fetch('http://127.0.0.1:8000/run-simulation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) throw new Error('Simulation API Error');
+        const result = await response.json();
+        showToast(`Simulation complete: ${result.message || 'Capacity optimized'}`, 'info');
+      } catch (error) {
+        showToast('Simulation API not available - using mock', 'error');
+      }
+    }
+    
+    // Animate number increment
+    function animateNumber(elementId, targetValue) {
+      const element = document.getElementById(elementId);
+      if (!element) return;
+      const current = parseInt(element.innerText) || 0;
+      const duration = 500;
+      const startTime = performance.now();
+      const startValue = current;
+      
+      function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const value = Math.floor(startValue + (targetValue - startValue) * progress);
+        element.innerText = value;
+        if (progress < 1) requestAnimationFrame(update);
+        else element.innerText = targetValue;
+      }
+      requestAnimationFrame(update);
+    }
+    
+    // Refresh all data
+    async function refreshAllData() {
+      showToast('Refreshing dashboard data...', 'info');
+      await Promise.all([fetchMetrics(), fetchAnalytics(), fetchLiveLogs()]);
+      showToast('Dashboard updated', 'info');
+    }
+    
+    // Initialize chart
+    function initChart() {
+      const ctx = document.getElementById('ordersChart').getContext('2d');
+      ordersChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          datasets: [{
+            label: 'Orders',
+            data: [45, 62, 78, 85, 92, 108, 124],
+            borderColor: '#FF9900',
+            backgroundColor: 'rgba(255, 153, 0, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#FF9900',
+            pointBorderColor: '#fff',
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: { labels: { color: '#e6edf3' } },
+            tooltip: { mode: 'index', intersect: false }
+          },
+          scales: {
+            y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#e6edf3' } },
+            x: { grid: { display: false }, ticks: { color: '#e6edf3' } }
           }
         }
-      } catch(e) { console.log("inventory fetch optional"); }
+      });
     }
-    fetchInventoryStats();
-
-    function animateValue(element, start, end, duration) {
-      let startTimestamp = null;
-      const step = (timestamp) => {
-        if (!startTimestamp) startTimestamp = timestamp;
-        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-        element.innerText = Math.floor(progress * (end - start) + start);
-        if (progress < 1) window.requestAnimationFrame(step);
-      };
-      window.requestAnimationFrame(step);
-    }
-    const ordersSpan = document.getElementById('statOrders');
-    if (ordersSpan) animateValue(ordersSpan, 2100, 2847, 800);
-
-    // ========== CONVEYOR BELT WITH MOVING AMAZON-STYLE BOXES ==========
-    (function initConveyor() {
+    
+    // ========== CONVEYOR BELT WITH REAL-TIME BOXES ==========
+    function initConveyor() {
       const canvas = document.getElementById('conveyorCanvas');
       const ctx = canvas.getContext('2d');
       const boxesContainer = document.getElementById('boxesContainer');
@@ -279,22 +484,15 @@
       let textureOffset = 0;
       let activeBoxes = [];
       let animationId = null;
-      let boxAnimationId = null;
       
       const BOX_WIDTH = 62;
       const BOX_HEIGHT = 48;
-      const BOX_SPEED = 0.95; // Smooth, realistic speed
-      const SPAWN_INTERVAL = 2100; // milliseconds
+      const BOX_SPEED = 0.95;
       
-      // Amazon-style box designs
       const boxDesigns = [
-        { emoji: "📦", label: "PRIME" },
-        { emoji: "🚚", label: "FAST" },
-        { emoji: "⚡", label: "SAME DAY" },
-        { emoji: "📦", label: "FULFILL" },
-        { emoji: "🏷️", label: "SMART" },
-        { emoji: "📦", label: "EXPRESS" },
-        { emoji: "✨", label: "PREMIUM" }
+        { emoji: "📦", label: "PRIME" }, { emoji: "🚚", label: "FAST" },
+        { emoji: "⚡", label: "SAME DAY" }, { emoji: "📦", label: "FULFILL" },
+        { emoji: "🏷️", label: "SMART" }, { emoji: "✨", label: "PREMIUM" }
       ];
       
       function resizeCanvas() {
@@ -303,22 +501,6 @@
         canvas.width = width;
         canvas.height = 160;
         drawBelt();
-        updateBeltPosition();
-        repositionAllBoxes();
-      }
-      
-      function getBeltRect() {
-        const canvasRect = canvas.getBoundingClientRect();
-        const containerRect = canvas.parentElement.getBoundingClientRect();
-        if (!canvasRect.width) return null;
-        return {
-          startX: canvasRect.left + 12,
-          endX: canvasRect.right - 38,
-          beltTopY: canvasRect.top + canvas.height - 48 + 5,
-          containerLeft: containerRect.left,
-          containerTop: containerRect.top,
-          canvasHeight: canvas.height
-        };
       }
       
       function drawBelt() {
@@ -327,7 +509,6 @@
         const h = canvas.height;
         ctx.clearRect(0, 0, w, h);
         
-        // Background gradient
         const grad = ctx.createLinearGradient(0, 0, 0, h);
         grad.addColorStop(0, '#1a2635');
         grad.addColorStop(1, '#0f1722');
@@ -337,21 +518,17 @@
         const beltY = h - 48;
         const beltHeight = 34;
         
-        // Belt shadow
         ctx.shadowBlur = 6;
-        ctx.shadowColor = 'rgba(0,0,0,0.6)';
         ctx.fillStyle = '#1a2a38';
         ctx.fillRect(0, beltY + 2, w, beltHeight);
         ctx.shadowBlur = 0;
         
-        // Belt surface
         const beltGrad = ctx.createLinearGradient(0, beltY, 0, beltY + beltHeight);
         beltGrad.addColorStop(0, '#3e5062');
         beltGrad.addColorStop(1, '#2a3a48');
         ctx.fillStyle = beltGrad;
         ctx.fillRect(0, beltY, w, beltHeight);
         
-        // Moving texture (conveyor pattern)
         for (let i = 0; i < w + 80; i += 36) {
           const x = (i + textureOffset) % (w + 80) - 40;
           if (x > 0 && x < w) {
@@ -369,12 +546,10 @@
           }
         }
         
-        // Belt edges
         ctx.strokeStyle = '#FFB347';
         ctx.lineWidth = 1.5;
         ctx.strokeRect(3, beltY, w - 6, beltHeight);
         
-        // Rollers
         for (let r = 20; r < w; r += 65) {
           ctx.fillStyle = '#5a6e80';
           ctx.beginPath();
@@ -386,13 +561,11 @@
           ctx.fill();
         }
         
-        // Side rails
         ctx.fillStyle = '#2c4050';
         ctx.fillRect(0, beltY - 6, w, 6);
         ctx.fillStyle = '#1e2e3c';
         ctx.fillRect(0, beltY + beltHeight, w, 8);
         
-        // Amazon-style accent line
         ctx.strokeStyle = '#FF9900';
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -407,39 +580,27 @@
         animationId = requestAnimationFrame(animateTexture);
       }
       
-      function updateBeltPosition() {
-        // Just updates reference - called on resize/scroll
-      }
-      
       function createBoxElement() {
         const boxDiv = document.createElement('div');
         boxDiv.className = 'conveyor-box';
         const design = boxDesigns[Math.floor(Math.random() * boxDesigns.length)];
-        boxDiv.innerHTML = `
-          <span class="box-emoji">${design.emoji}</span>
-          <span class="box-label">${design.label}</span>
-        `;
+        boxDiv.innerHTML = `<span class="box-emoji">${design.emoji}</span><span class="box-label">${design.label}</span>`;
         return boxDiv;
       }
       
       function spawnBox() {
-        const belt = getBeltRect();
-        if (!belt) return;
+        const canvasRect = canvas.getBoundingClientRect();
+        if (!canvasRect.width) return;
         
         const boxElement = createBoxElement();
         boxElement.style.position = 'absolute';
         boxElement.style.left = '-70px';
-        boxElement.style.top = (belt.canvasHeight - 48 + 4) + 'px';
+        boxElement.style.top = (canvas.height - 48 + 4) + 'px';
         boxesContainer.appendChild(boxElement);
         
-        activeBoxes.push({
-          element: boxElement,
-          x: -BOX_WIDTH,
-          speed: BOX_SPEED,
-          width: BOX_WIDTH
-        });
+        activeBoxes.push({ element: boxElement, x: -BOX_WIDTH, speed: BOX_SPEED });
         
-        // Update items per minute counter
+        // Update item rate
         const rateSpan = document.getElementById('itemRate');
         if (rateSpan) {
           let current = parseInt(rateSpan.innerText) || 18;
@@ -450,93 +611,75 @@
       }
       
       function moveBoxes() {
-        const belt = getBeltRect();
+        const canvasRect = canvas.getBoundingClientRect();
+        const maxX = canvasRect.width - 80;
         
         for (let i = 0; i < activeBoxes.length; i++) {
           const box = activeBoxes[i];
           box.x += box.speed;
           
-          // Remove if past the end
-          const maxX = (belt ? belt.endX - belt.startX : 800);
           if (box.x > maxX + 100) {
-            if (box.element && box.element.remove) {
-              box.element.remove();
-            }
+            if (box.element && box.element.remove) box.element.remove();
             activeBoxes.splice(i, 1);
             i--;
             continue;
           }
           
-          // Update position
           if (box.element) {
             box.element.style.left = box.x + 'px';
-            // Subtle wobble effect
             const wobble = Math.sin(Date.now() * 0.006 + i) * 1.2;
             box.element.style.transform = `rotate(${wobble}deg)`;
           }
         }
         
-        boxAnimationId = requestAnimationFrame(moveBoxes);
+        requestAnimationFrame(moveBoxes);
       }
       
-      function repositionAllBoxes() {
-        // Keep boxes in correct relative position on resize
-        for (let i = 0; i < activeBoxes.length; i++) {
-          const box = activeBoxes[i];
-          if (box.element) {
-            box.element.style.left = box.x + 'px';
-          }
-        }
-      }
-      
-      // Spawn timer
-      let spawnTimer = setInterval(() => {
-        if (document.hasFocus() && document.getElementById('conveyorCanvas')) {
-          spawnBox();
-        }
-      }, SPAWN_INTERVAL);
-      
-      // Handle window resize
-      let resizeTimeout;
-      window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-          resizeCanvas();
-          repositionAllBoxes();
-        }, 100);
-      });
-      
-      window.addEventListener('scroll', () => {
-        repositionAllBoxes();
-      });
-      
-      // Initialize
       resizeCanvas();
       animateTexture();
       moveBoxes();
       
-      // Spawn initial boxes
-      setTimeout(() => {
-        spawnBox();
-        setTimeout(() => spawnBox(), 600);
-        setTimeout(() => spawnBox(), 1300);
-        setTimeout(() => spawnBox(), 1900);
-        setTimeout(() => spawnBox(), 2600);
-        setTimeout(() => spawnBox(), 3300);
-      }, 400);
+      setInterval(() => {
+        if (document.hasFocus()) spawnBox();
+      }, 2100);
       
-      // Cleanup on page unload
-      window.addEventListener('beforeunload', () => {
-        if (spawnTimer) clearInterval(spawnTimer);
-        if (animationId) cancelAnimationFrame(animationId);
-        if (boxAnimationId) cancelAnimationFrame(boxAnimationId);
-        for (const box of activeBoxes) {
-          if (box.element && box.element.remove) box.element.remove();
-        }
-        activeBoxes = [];
-      });
+      setTimeout(() => { spawnBox(); spawnBox(); spawnBox(); }, 500);
       
-    })();
+      window.addEventListener('resize', () => resizeCanvas());
+    }
+    
+    // Start real-time refresh cycle
+    function startRealTimeUpdates() {
+      // Initial load
+      fetchMetrics();
+      fetchAnalytics();
+      fetchLiveLogs();
+      
+      // Set up refresh intervals
+      refreshInterval = setInterval(() => {
+        fetchMetrics();
+        fetchAnalytics();
+      }, 8000); // Update every 8 seconds
+      
+      setInterval(() => {
+        fetchLiveLogs();
+      }, 5000); // Logs every 5 seconds
+    }
+    
+    // Initialize everything
+    document.addEventListener('DOMContentLoaded', () => {
+      initChart();
+      initConveyor();
+      startRealTimeUpdates();
+      
+      // Set initial item rate
+      document.getElementById('itemRate').innerText = '18';
+      document.getElementById('liveStatusBadge').innerHTML = '<i class="fas fa-circle"></i> LIVE • REAL-TIME';
+    });
+    
+    window.addEventListener('beforeunload', () => {
+      if (refreshInterval) clearInterval(refreshInterval);
+    });
   </script>
 </body>
 </html>

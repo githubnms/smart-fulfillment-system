@@ -7,7 +7,8 @@
 }
 
 body {
-  background: #0a0e14;
+  background: radial-gradient(circle at 20% 20%, #1a2635, #0a0e14 60%),
+              radial-gradient(circle at 80% 80%, #1f2f45, transparent 60%);
   color: #e6edf3;
   overflow-x: hidden;
 }
@@ -376,4 +377,107 @@ body {
   .sidebar-nav .nav-item span { display: none; }
   .stats-grid { grid-template-columns: 1fr; }
   .conveyor-stats { gap: 0.8rem; }
+}
+
+.glow-card:hover {
+  box-shadow: 
+    0 0 10px rgba(255,153,0,0.3),
+    0 0 25px rgba(255,153,0,0.2),
+    0 0 40px rgba(255,153,0,0.1);
+}
+
+/* css/styles.css - Add these new styles to existing CSS */
+.activity-feed {
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #FF9900 #232F3E;
+}
+
+.activity-feed::-webkit-scrollbar {
+  width: 4px;
+}
+
+.activity-feed::-webkit-scrollbar-track {
+  background: #232F3E;
+  border-radius: 10px;
+}
+
+.activity-feed::-webkit-scrollbar-thumb {
+  background: #FF9900;
+  border-radius: 10px;
+}
+
+.metric-badge {
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.metric-badge:hover {
+  transform: translateX(4px);
+  background: #2a3a4a;
+}
+
+.refresh-indicator {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.refresh-indicator:hover {
+  transform: rotate(180deg);
+  color: #FF9900;
+}
+
+.stat-card {
+  transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+}
+
+.stat-card.loading {
+  opacity: 0.6;
+  filter: blur(1px);
+  pointer-events: none;
+}
+
+.conveyor-box {
+  transition: transform 0.02s linear;
+}
+
+.conveyor-box:hover {
+  filter: brightness(1.1);
+  transform: scale(1.02) !important;
+}
+
+/* Gradient animations for cards */
+.stat-card {
+  background: linear-gradient(135deg, #131921, #1f2a3c, #131921);
+  border: 1px solid rgba(255,153,0,0.25);
+  box-shadow: 0 0 12px rgba(255,153,0,0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,153,0,0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.stat-card:hover::before {
+  left: 100%;
+}
+
+/* Chart container glow */
+.chart-container {
+  transition: all 0.3s ease;
+}
+
+.chart-container:hover {
+  border-color: #FF9900;
+  box-shadow: 0 0 15px rgba(255,153,0,0.2);
 }
