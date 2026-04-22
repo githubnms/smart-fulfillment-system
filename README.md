@@ -37,9 +37,10 @@ The **Distributed Fulfillment Engine** is designed to replicate the core logic b
 
 ## Screenshots
 <div align="center">
-  <img src="screenshot/Dashboard V1.png" width="400" alt="Dashboard v1">
+  <img src="screenshot/Dashboard V2.png" width="400" alt="Dashboard v2">
+  <img src="screenshot/Dashboard V2-1.png" width="400" alt="Dashboard v2">
   <br>
-  <em> Dashboard v1 </em>
+  <em> Dashboard v2 </em>
 </div>
 
 # Work In Progress
