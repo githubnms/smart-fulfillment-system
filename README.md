@@ -43,15 +43,6 @@ The **Distributed Fulfillment Engine** is designed to replicate the core logic b
   <em> Dashboard v2 </em>
 </div>
 
-# Work In Progress
-
-- 🔄 Advanced delivery optimization algorithms (cost vs speed trade-off)
-- 🔄 Real-time analytics dashboard with charts
-- 🔄 Simulation engine for testing large-scale scenarios
-- 🔄 Multi-warehouse load balancing improvements
-- 🔄 Performance optimization for high-throughput requests
-- 🔄 Deployment (Docker + Cloud - AWS)
-
 # Key Highlights
 
 - Simulates real-world logistics systems handling high-volume delivery decisions
